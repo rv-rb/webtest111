@@ -28,6 +28,7 @@
       font-size: 2.5em;
       margin-bottom: 1em;
       color: #ffffff;
+      text-shadow: 0 0 10px #03dac6;
     }
 
     input {
@@ -39,6 +40,7 @@
       color: #ffffff;
       width: 250px;
       margin-bottom: 1em;
+      box-shadow: 0 0 5px #03dac6;
     }
 
     button {
@@ -49,11 +51,13 @@
       background-color: #03dac6;
       color: #000000;
       cursor: pointer;
-      transition: background-color 0.3s ease;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+      box-shadow: 0 0 10px #03dac6;
     }
 
     button:hover {
       background-color: #00bfa5;
+      transform: scale(1.05);
     }
 
     #result {
@@ -61,6 +65,12 @@
       font-size: 2em;
       color: #ff4081;
       min-height: 2em;
+      opacity: 0;
+      transition: opacity 0.5s ease;
+    }
+
+    #result.show {
+      opacity: 1;
     }
 
     @media (max-width: 500px) {
@@ -79,26 +89,42 @@
   <div id="result"></div>
 
   <script>
+    let lastName = '';
+    let ryanCount = 0;
+
     function saySilly() {
-      const name = document.getElementById('nameInput').value.trim().toLowerCase();
+      const input = document.getElementById('nameInput');
+      const name = input.value.trim().toLowerCase();
       const result = document.getElementById('result');
 
-      switch (name) {
-        case 'mark':
-          result.textContent = 'Oh you actually sound pretty normal';
-          break;
-        case 'ryan':
-          result.textContent = 'gae';
-          break;
-        case 'mick':
-          result.textContent = 'weeb at heart';
-          break;
-        case '':
-          result.textContent = 'Someone is silly 😜';
-          break;
-        default:
-          result.textContent = `${capitalize(name)} is silly 😜`;
+      let message = '';
+
+      if (name === '') {
+        message = 'Someone is silly 😜';
+        ryanCount = 0;
+      } else if (name === 'mark') {
+        message = 'Oh you actually sound pretty normal';
+        ryanCount = 0;
+      } else if (name === 'mick') {
+        message = 'Silly at heart';
+        ryanCount = 0;
+      } else if (name === 'ryan') {
+        if (lastName === 'ryan') {
+          ryanCount++;
+        } else {
+          ryanCount = 1;
+        }
+        message = ryanCount > 1 ? 'still gae' : 'gae';
+      } else {
+        message = `${capitalize(name)} is silly 😜`;
+        ryanCount = 0;
       }
+
+      lastName = name;
+      result.textContent = message;
+      result.classList.remove('show');
+      void result.offsetWidth; // trigger reflow for animation
+      result.classList.add('show');
     }
 
     function capitalize(str) {
