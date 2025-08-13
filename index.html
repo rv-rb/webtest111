@@ -5,79 +5,46 @@
   <title>You Are Silly</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
+    * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
-      background-color: #121212;
-      color: #e0e0e0;
+      background-color: #121212; color: #e0e0e0;
       font-family: 'Segoe UI', Roboto, sans-serif;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-      text-align: center;
-      padding: 1em;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      height: 100vh; text-align: center; padding: 1em;
     }
-
     h1 {
-      font-size: 2.5em;
-      margin-bottom: 1em;
-      color: #ffffff;
+      font-size: 2.5em; margin-bottom: 1em; color: #fff;
       text-shadow: 0 0 10px #03dac6;
     }
-
     input {
-      padding: 0.75em;
-      font-size: 1em;
-      border: none;
-      border-radius: 8px;
-      background-color: #1e1e1e;
-      color: #ffffff;
-      width: 250px;
-      margin-bottom: 1em;
+      padding: 0.75em; font-size: 1em; border: none; border-radius: 8px;
+      background-color: #1e1e1e; color: #fff; width: 250px; margin-bottom: 1em;
       box-shadow: 0 0 5px #03dac6;
     }
-
     button {
-      padding: 0.75em 1.5em;
-      font-size: 1em;
-      border: none;
-      border-radius: 8px;
-      background-color: #03dac6;
-      color: #000000;
-      cursor: pointer;
+      padding: 0.75em 1.5em; font-size: 1em; border: none; border-radius: 8px;
+      background-color: #03dac6; color: #000; cursor: pointer;
       transition: background-color 0.3s ease, transform 0.2s ease;
       box-shadow: 0 0 10px #03dac6;
     }
-
-    button:hover {
-      background-color: #00bfa5;
-      transform: scale(1.05);
-    }
-
+    button:hover { background-color: #00bfa5; transform: scale(1.05); }
     #result {
-      margin-top: 2em;
-      font-size: 2em;
-      color: #ff4081;
-      min-height: 2em;
-      opacity: 0;
-      transition: opacity 0.5s ease;
+      margin-top: 2em; font-size: 2em; color: #ff4081;
+      min-height: 2em; opacity: 0; transition: opacity 0.5s ease;
     }
-
-    #result.show {
-      opacity: 1;
-    }
-
+    #result.show { opacity: 1; }
     @media (max-width: 500px) {
-      input, button {
-        width: 100%;
-        margin-bottom: 0.5em;
-      }
+      input, button { width: 100%; margin-bottom: 0.5em; }
+    }
+    #passwordContainer {
+      display: none; flex-direction: column; align-items: center;
+    }
+    #terminal {
+      background-color: #000; color: #0f0; font-family: monospace;
+      padding: 1em; margin-top: 1em; width: 100%; max-width: 400px;
+      height: 200px; overflow-y: auto; border: 2px solid #03dac6;
+      display: none; text-align: left;
     }
   </style>
 </head>
@@ -86,18 +53,34 @@
   <input type="text" id="nameInput" placeholder="Enter your name">
   <button onclick="saySilly()">Reveal the truth</button>
 
+  <div id="passwordContainer">
+    <input type="password" id="passwordInput" placeholder="Enter root password">
+    <button onclick="checkPassword()">Login</button>
+  </div>
+
   <div id="result"></div>
+  <div id="terminal"></div>
 
   <script>
     let lastName = '';
     let ryanCount = 0;
+    const ROOT_PASSWORD = "letmein";
 
     function saySilly() {
       const input = document.getElementById('nameInput');
       const name = input.value.trim().toLowerCase();
       const result = document.getElementById('result');
+      const passwordContainer = document.getElementById('passwordContainer');
 
       let message = '';
+
+      if (name === 'root') {
+        passwordContainer.style.display = 'flex';
+        result.textContent = '';
+        return;
+      }
+
+      passwordContainer.style.display = 'none';
 
       if (name === '') {
         message = 'Someone is silly 😜';
@@ -118,11 +101,8 @@
         message = 'legend always';
         ryanCount = 0;
       } else if (name === 'ryan') {
-        if (lastName === 'ryan') {
-          ryanCount++;
-        } else {
-          ryanCount = 1;
-        }
+        if (lastName === 'ryan') { ryanCount++; }
+        else { ryanCount = 1; }
         message = ryanCount > 1 ? 'still gae' : 'gae';
       } else {
         message = `${capitalize(name)} is silly 😜`;
@@ -132,12 +112,99 @@
       lastName = name;
       result.textContent = message;
       result.classList.remove('show');
-      void result.offsetWidth; // trigger reflow for animation
+      void result.offsetWidth;
       result.classList.add('show');
     }
 
     function capitalize(str) {
       return str.charAt(0).toUpperCase() + str.slice(1);
+    }
+
+    function checkPassword() {
+      const entered = document.getElementById('passwordInput').value;
+      if (entered === ROOT_PASSWORD) {
+        startFakeHack();
+      } else {
+        alert("Access Denied!");
+      }
+    }
+
+    // Typewriter hacker effect
+    function typeWriterEffect(message, callback) {
+      const terminal = document.getElementById('terminal');
+      let i = 0;
+      function typeChar() {
+        if (i < message.length) {
+          terminal.innerHTML += message.charAt(i);
+          i++;
+          terminal.scrollTop = terminal.scrollHeight;
+          setTimeout(typeChar, 30);
+        } else {
+          terminal.innerHTML += "<br>";
+          callback();
+        }
+      }
+      typeChar();
+    }
+
+    function startFakeHack() {
+      document.getElementById('passwordContainer').style.display = 'none';
+      const terminal = document.getElementById('terminal');
+      terminal.style.display = 'block';
+      terminal.innerHTML = '';
+
+      const fakeMessages = [
+        "> Initializing root access...",
+        "> Bypassing mainframe...",
+        "> Downloading secret files...",
+        "> Encrypting data streams...",
+        "> Pinging 192.168.0.1...",
+        "> Exporting Windows Credential Manager Data",
+        "> Exporting Browser Credential Data",
+        "> JINKIES! I lost my glasses",
+        "> I can't see without my glasses!",
+        "> Granting root access",
+        "> Bypassing Central Mainframe 10%",
+        "> Bypassing Central Mainframe 20%",
+        "> Bypassing Central Mainframe 30%",
+        "> Bypassing Central Mainframe 40%",
+        "> Bypassing Central Mainframe 50%",
+        "> Bypassing Central Mainframe 60%",
+        "> Bypassing Central Mainframe 70%",
+        "> Bypassing Central Mainframe 80%",
+        "> Bypassing Central Mainframe 90%",
+        "> Bypassing Central Mainframe 92%",
+        "> Bypassing Central Mainframe 93%",
+        "> Bypassing Central Mainframe 94%",
+        "> Bypassing Central Mainframe 95%",
+        "> Bypassing Central Mainframe 96%",
+        "> Bypassing Central Mainframe 97%",
+        "> Bypassing Central Mainframe 98%",
+        "> Bypassing Central Mainframe 99%",
+        "> Bypassing Central Mainframe 99.9%",
+        "> Bypassing Central Mainframe 99.99%",
+        "> Bypassing Central Mainframe 99.999%",
+        "> Bypassing Central Mainframe 99.9999%",
+        "> Bypassing Central Mainframe 99.99999%",
+        "> Bypassing Central Mainframe 70%",
+        "> Bypassing Central Mainframe 100%",
+        "> Accessing top secret folder...",
+        "> Injecting reverse shell...",
+        "> Just kidding... 😜",
+        "> Or am I?",
+        "> Process complete."
+      ];
+
+      let idx = 0;
+      function nextMessage() {
+        if (idx < fakeMessages.length) {
+          typeWriterEffect(fakeMessages[idx], () => {
+            idx++;
+            setTimeout(nextMessage, 200); // short pause between messages
+          });
+        }
+      }
+      nextMessage();
     }
   </script>
 </body>
